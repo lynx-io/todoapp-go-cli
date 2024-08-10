@@ -98,7 +98,7 @@ var addCmd = &cobra.Command{
 			return
 		}
 
-		err = writer.Write([]string{strconv.Itoa(id), details, strconv.Itoa(urgency)})
+		err = writer.Write([]string{strconv.Itoa(id), details, strconv.Itoa(urgency), strconv.FormatBool(false)})
 
 		if err != nil {
 			fmt.Println("Error writing to file:", err)

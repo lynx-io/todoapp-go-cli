@@ -19,9 +19,10 @@ var (
 )
 
 type Task struct {
-	Id      int
-	Details string
-	Urgency int
+	Id        int
+	Details   string
+	Urgency   int
+	Completed bool
 }
 
 func sortTaskByUrgency(tasks []Task) {
@@ -71,10 +72,13 @@ func GetAllItems() ([]Task, error) {
 			return nil, err
 		}
 
+		isCompleted, err := strconv.ParseBool(record[3])
+
 		tasks = append(tasks, Task{
-			Id:      id,
-			Details: record[1],
-			Urgency: urgency,
+			Id:        id,
+			Details:   record[1],
+			Urgency:   urgency,
+			Completed: isCompleted,
 		})
 	}
 
@@ -103,7 +107,8 @@ var listCmd = &cobra.Command{
 		fmt.Println("### Todo list ###")
 
 		for _, task := range tasks {
-			fmt.Printf("Urgency : %d | Task: %s\n", task.Urgency, task.Details)
+			tick := map[bool]string{true: "✔", false: ""}[task.Completed]
+			fmt.Printf("%s Urgency : %d | %d | Task: %s\n", tick, task.Urgency, task.Id, task.Details)
 		}
 	},
 }
