@@ -4,11 +4,17 @@ Copyright © 2024 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
+	"encoding/csv"
 	"fmt"
 	"os"
 	"path/filepath"
+	"strconv"
 
 	"github.com/spf13/cobra"
+)
+
+var (
+	completedOnly bool
 )
 
 // flushCmd represents the flush command
@@ -17,6 +23,13 @@ var flushCmd = &cobra.Command{
 	Short: "Removes all items from the Todo list",
 	Long:  "",
 	Run: func(cmd *cobra.Command, args []string) {
+		tasks, err := GetAllItems()
+
+		if err != nil {
+			fmt.Println("There was an error getting all items", err)
+			return
+		}
+
 		homeDir, err := os.UserHomeDir()
 
 		if err != nil {
@@ -33,20 +46,39 @@ var flushCmd = &cobra.Command{
 			return
 		}
 
-		fmt.Println("Database flushed, no tasks remaining in the Todo list")
+		if completedOnly {
+			writer, err := os.Create(filePath)
+			defer writer.Close()
+
+			if err != nil {
+				fmt.Println("Error creating file", err)
+				return
+			}
+
+			csv := csv.NewWriter(writer)
+			defer csv.Flush()
+
+			for _, task := range tasks {
+				if !task.Completed {
+					err = csv.Write([]string{strconv.Itoa(task.Id), task.Details, strconv.Itoa(task.Urgency), strconv.FormatBool(task.Completed)})
+
+					if err != nil {
+						fmt.Println("Error writing", err)
+						return
+					}
+				}
+			}
+			fmt.Println("Completed only items removed")
+		} else {
+
+			fmt.Println("Database flushed, no tasks remaining in the Todo list")
+		}
+
 	},
 }
 
 func init() {
 	rootCmd.AddCommand(flushCmd)
 
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// flushCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// flushCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	flushCmd.Flags().BoolVarP(&completedOnly, "completed", "c", false, "Help message for toggle")
 }

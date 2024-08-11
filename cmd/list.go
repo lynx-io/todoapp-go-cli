@@ -11,6 +11,7 @@ import (
 	"sort"
 	"strconv"
 
+	"github.com/olekukonko/tablewriter"
 	"github.com/spf13/cobra"
 )
 
@@ -104,12 +105,49 @@ var listCmd = &cobra.Command{
 			sortTaskByUrgency(tasks)
 		}
 
-		fmt.Println("### Todo list ###")
-
+		table := tablewriter.NewWriter(os.Stdout)
+		table.SetHeader([]string{"ID", "Completed", "Details", "Urgency"})
 		for _, task := range tasks {
 			tick := map[bool]string{true: "✔", false: ""}[task.Completed]
-			fmt.Printf("%s Urgency : %d | %d | Task: %s\n", tick, task.Urgency, task.Id, task.Details)
+			if task.Urgency == 1 {
+				table.Rich([]string{
+					strconv.Itoa(task.Id),
+					tick,
+					task.Details,
+					strconv.Itoa(task.Urgency),
+				}, []tablewriter.Colors{
+					{}, // ID: no color
+					{}, // Details: no color
+					{}, // Completed: no color
+					tablewriter.Colors{tablewriter.FgRedColor}, // Urgency: red
+				})
+			} else {
+
+				table.Rich([]string{
+					strconv.Itoa(task.Id),
+					tick,
+					task.Details,
+					strconv.Itoa(task.Urgency),
+				}, []tablewriter.Colors{
+					{}, // ID: no color
+					{}, // Details: no color
+					{}, // Completed: no color
+					{},
+				})
+			}
 		}
+
+		table.SetBorders(tablewriter.Border{Left: true, Right: true, Bottom: false, Top: false})
+		table.SetCenterSeparator("+")
+		table.SetAlignment(tablewriter.ALIGN_CENTER)
+		table.SetRowLine(true)
+
+		for i := range tasks {
+			if tasks[i].Urgency == 1 {
+			}
+		}
+
+		table.Render()
 	},
 }
 

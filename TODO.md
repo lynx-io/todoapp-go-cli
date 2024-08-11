@@ -7,6 +7,7 @@
 - [x] Modify code to save items with Id 
 - [x] Create a new command to mark note as done
 - [ ] Put done items to the bottom always
-- [ ] Improve todo list to show a beautiful table
+- [x] Improve todo list to show a beautiful table
 - [ ] Create a new command to remove all done tasks
+- [ ] Use SQLite instead of CSVs
 - [ ] Refactor code to use Viper to facilitate configuration (hardcoded urls are not nice :D)
